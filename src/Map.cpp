@@ -5,30 +5,65 @@
 #include "Window.h"
 
 
-Map::Map(Window* window) : window(window), tileSize(16), mapWidth(1000), mapHeight(1000), loadedRange(1000) {
+Map::Map(Window* window) : window(window), tileSize(16), mapWidth(100), mapHeight(100), loadedRange(1000) {
 
-    windowWidthPtr = window -> getWidthPtr();
-    windowHeightPtr = window -> getHeightPtr();
+    windowWidthPtr = window->getWidthPtr();
+    windowHeightPtr = window->getHeightPtr();
     renderer = window->getRenderer();
     
-    //grassTexture = loadTexture("assets/Tilesets/Grass.png", renderer);
-    //SDL_Texture* woodenHouseWallsTexture = loadTexture("assets/Tilesets/Wooden_House_Walls_Tilset.png", renderer);
+    // Load texture once for the entire map
+    texture = loadTexture("assets/tileset.png", renderer);
 
-
-    tiles.resize(mapHeight, std::vector<Tile>(mapWidth));
-
-    for (int y = 0; y < mapHeight; ++y) {
-        for (int x = 0; x < mapWidth; ++x) {
-            tiles[y][x] = Tile(x, y, "", NULL, renderer, true, tileSize, windowWidthPtr, windowHeightPtr);
-        }
-    }
-}
-
+    // Precompute decorations for all tiles
+    createMap();
+}   
 
 Map::~Map() {
     if (texture) {
         SDL_DestroyTexture(texture);
         texture = nullptr;
+    }
+}
+
+
+
+std::string Map::getDecoration() {
+    static std::unordered_map<std::string, int> mapDecorationsChances = {
+        {"bush", 10},
+        // Add more decorations here
+    };
+
+    static int totalChances = std::accumulate(mapDecorationsChances.begin(), mapDecorationsChances.end(), 0,
+        [](int sum, const auto& pair) { return sum + pair.second; });
+
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(1, totalChances);
+    int randomNum = distrib(gen);
+
+    int cumulativeChance = 0;
+    for (const auto& pair : mapDecorationsChances) {
+        cumulativeChance += pair.second;
+        if (randomNum <= cumulativeChance) {
+            return pair.first;
+        }
+    }
+
+    return "none"; // Default if no decoration is selected
+}
+
+void Map::createMap() {
+    tiles.resize(mapHeight, std::vector<Tile>(mapWidth));
+
+    // Generate and store tile decorations during map creation
+    for (int y = 0; y < mapHeight; ++y) {
+        for (int x = 0; x < mapWidth; ++x) {
+            //std::string decoration = getDecoration();
+            //bool isWalkable = (decoration == "none");
+            // tiles[y][x] = Tile(x, y, decoration, texture, renderer, isWalkable, tileSize, windowWidthPtr, windowHeightPtr);
+            tiles[y][x] = Tile(x, y, "", NULL, renderer, true, tileSize, windowWidthPtr, windowHeightPtr);
+
+        }
     }
 }
 
@@ -63,9 +98,9 @@ void Map::draw(int cameraX, int cameraY) {
     }
 }
 
-int Map::getMapWidth() const {return mapWidth;}
-int Map::getMapHeight() const {return mapHeight;}
-int Map::getTileSize() const {return tileSize;}
+int Map::getMapWidth() const { return mapWidth; }
+int Map::getMapHeight() const { return mapHeight; }
+int Map::getTileSize() const { return tileSize; }
 
 std::pair<int, int> Map::worldToTileCoordinates(float x, float y) {
     return {static_cast<int>(x / tileSize), static_cast<int>(y / tileSize)};
@@ -99,7 +134,7 @@ SDL_Texture* Map::loadTexture(const char* filePath, SDL_Renderer* renderer) {
     return texture;
 }
 
-void Map::updateZombies(float deltaTime){
+void Map::updateZombies(float deltaTime) {
     Player* playerPtr = window->getPlayerPtr();
     int playerX, playerY;
     std::tie(playerX, playerY) = playerPtr->getCoordinates();
@@ -113,7 +148,7 @@ void Map::updateZombies(float deltaTime){
             zombie->update(deltaTime);
         }
     }
-    
+
     removeDeadZombies();
 
     // Random spawn new zombies
@@ -127,8 +162,8 @@ void Map::updateZombies(float deltaTime){
         float max_Y = std::min(playerY + *windowHeightPtr, mapHeight * tileSize);
 
         do {
-            float x = (dis(gen)-0.5f) * (max_X - min_X) + playerX;
-            float y = (dis(gen)-0.5f) * (max_Y - min_Y) + playerY;
+            float x = (dis(gen) - 0.5f) * (max_X - min_X) + playerX;
+            float y = (dis(gen) - 0.5f) * (max_Y - min_Y) + playerY;
             Tile* tilePtr = getTileAtPixelPtr(x, y);
             if (tilePtr && tilePtr->getIsWalkable()) {
                 Zombie* zombie = new Zombie(x, y, window, this);
@@ -153,4 +188,24 @@ void Map::removeDeadZombies() {
             ++it;
         }
     }
+}
+
+Player Map::spawnPlayer() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> distribX(0,mapWidth);
+    std::uniform_int_distribution<int> distribY(0,mapHeight);
+
+    do {
+        int x = distribX(gen);
+        int y = distribY(gen);
+        std::cout << "x: " << x << " y: " << y << std::endl;
+    
+        Tile* tilePtr = getTilePtr(x, y);
+        if (tilePtr && tilePtr->getIsWalkable()) {
+            Player player = Player(x * tileSize, y*tileSize, window, this);
+            setPlayer(&player);
+            return player;
+        }
+    } while (true);
 }

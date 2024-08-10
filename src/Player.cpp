@@ -9,7 +9,7 @@ Player::Player(float x, float y, Window* window, Map* map)
     setIsPlayer(true);
     gun = new Gun(20, 200, 20, 10);
     tpStart = std::chrono::steady_clock::now();
-    light = new Light(&x, &y, 200, 10, 1, window);
+    light = new Light(&x, &y, 100, 10, 200, window);
     window->addLight(light);
 }
 

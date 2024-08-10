@@ -93,7 +93,7 @@ void Window::updateScreen() {
     player->getGun()->drawBullets(renderer, playerX, playerY, width, height);
 
     // Render light mask
-    // renderLightMask();
+    renderLightMask();
 
     // Present the renderer
     SDL_RenderPresent(renderer);
@@ -120,7 +120,6 @@ void Window::setLightMask() {
 SDL_Texture* Window::getLightMask() {
     return lightMask;
 }
-
 void Window::renderLightMask() {
     if (!lightMask) {
         std::cerr << "Light mask texture is not initialized!" << std::endl;
@@ -133,11 +132,17 @@ void Window::renderLightMask() {
         return;
     }
 
-    // Clear the texture with a dark transparent color
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180); // Semi-transparent black
+    // Clear the lightMask with a dark color
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
     SDL_RenderClear(renderer);
 
-    // Parameters for the light mask
+    // Set blend mode to add for rendering lights
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_ADD);
+
+    SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255); // how much you can see in the dark
+    SDL_RenderFillRect(renderer, NULL);
+
+    // Render all lights
     for (Light* light : lights) {
         light->render();
     }
@@ -145,7 +150,10 @@ void Window::renderLightMask() {
     // Reset the render target to the default (screen)
     SDL_SetRenderTarget(renderer, NULL);
 
-    // Render the darkness texture onto the screen
+    // Set the blending mode for the lightMask
+    SDL_SetTextureBlendMode(lightMask, SDL_BLENDMODE_MOD);
+
+    // Render the lightMask texture onto the screen
     SDL_RenderCopy(renderer, lightMask, NULL, NULL);
 }
 

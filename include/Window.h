@@ -22,6 +22,9 @@ private:
     bool leftMouseDown;
     SDL_Texture* lightMask;
     std::vector<Light*> lights;
+    SDL_Texture* backgroundLayer;
+    SDL_Texture* lightLayer;
+    SDL_Texture* resultLayer;
 
 public:
     Window(int width, int height, const char* title);

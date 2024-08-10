@@ -27,7 +27,6 @@ private:
     std::vector<Zombie*> zombies;
     Player* player;
     
-    
 
     SDL_Texture* loadTexture(const char* filePath, SDL_Renderer* renderer);
 
@@ -48,6 +47,9 @@ public:
     void removeDeadZombies();
     std::vector<Zombie*> getZombies();
     void setPlayer(Player* player);
+    void createMap();
+    std::string getDecoration();
+    Player spawnPlayer();
 };
 
 #endif

@@ -14,6 +14,7 @@ private:
     int variation;
     int intensity;
     Window* window;
+    float time;
 
 public:
     Light(float* xPtr, float* yPtr, int range, int variation, int intensity, Window* window);

@@ -14,15 +14,15 @@ int main(int argc, char* argv[]) {
     try {
         Window window(WINDOW_WIDTH, WINDOW_HEIGHT, "RPG Game");
         Map map(&window);
-        Player player(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, &window, &map); // Adjust radius for texture size
-        map.setPlayer(&player);
+
+        Player player = map.spawnPlayer(); // Adjust radius for texture size
 
         window.setPlayer(&player);
         window.setMap(&map);
 
-        Zombie zombie(1000, 100, &window, &map);
-        zombie.setTarget(&player);
-        map.addZombie(&zombie); 
+        // Zombie zombie(1000, 100, &window, &map);
+        // zombie.setTarget(&player);
+        // map.addZombie(&zombie); 
 
 
         while (window.handleEvents()) {
