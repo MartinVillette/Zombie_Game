@@ -4,8 +4,13 @@
 #include "Bullet.h"
 #include <vector>
 
+class Window;
+class Player;
+
 class Gun {
 private:
+    Window* window;
+    Player* playerPtr;
     int damage;
     int range;
     float fireRate;
@@ -14,12 +19,16 @@ private:
     float timeSinceLastShot;
     std::vector<Bullet*> bullets;
     const float bulletSpeed = 300.0f;
+    SDL_Texture* gunTexture;
+    int rotatedEndX, rotatedEndY;
 
 public:
-    Gun(int damage, int range, float fireRate, int magazineCapacity);
+    Gun(Window* window, Player* playerPtr, int damage, int range, float fireRate, int magazineCapacity);
     void shoot(int originX, int originY, float directionX, float directionY);
     void update(float deltaTime, std::vector<Zombie*> zombies);
-    void drawBullets(SDL_Renderer* renderer, int cameraX, int cameraY, int windowWidth, int windowHeight);
+    void drawBullets(int cameraX, int cameraY);
+    SDL_Texture* loadTexture(const char* filePath, SDL_Renderer* renderer);
+    void draw(int cameraX, int cameraY);
 };
 
 #endif

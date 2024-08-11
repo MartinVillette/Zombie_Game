@@ -20,11 +20,6 @@ int main(int argc, char* argv[]) {
         window.setPlayer(&player);
         window.setMap(&map);
 
-        // Zombie zombie(1000, 100, &window, &map);
-        // zombie.setTarget(&player);
-        // map.addZombie(&zombie); 
-
-
         while (window.handleEvents()) {
             // Main loop
             window.updateScreen();

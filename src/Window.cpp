@@ -73,24 +73,31 @@ void Window::updateScreen() {
 
     int playerX, playerY;
     std::tie(playerX, playerY) = player->getCoordinates();
+    int cameraX, cameraY;
+    // float zoomFactor = map->getZoomFactor();
+    // cameraX = (int) (playerX / zoomFactor);
+    // cameraY = (int) (playerY / zoomFactor);
+    cameraX = playerX;
+    cameraY = playerY;
+
 
     // Draw map
     if (map) {
-        map->draw(playerX, playerY);
+        map->draw(cameraX, cameraY);
     }
 
     // Draw zombies
     for (Zombie* zombie : map->getZombies()) {
-        zombie->draw(playerX, playerY);
+        zombie->draw(cameraX, cameraY);
     }
     
     // Draw player
     if (player) {
-        player->draw(playerX, playerY);
+        player->draw(cameraX, cameraY);
     }
-
     // Draw bullets
-    player->getGun()->drawBullets(renderer, playerX, playerY, width, height);
+        
+    player->getGun()->drawBullets(cameraX, cameraY);
 
     // Render light mask
     renderLightMask();
@@ -182,6 +189,10 @@ bool Window::handleEvents() {
                     width = event.window.data1;
                     height = event.window.data2;
                     setLightMask(); // Recreate the lightMask texture with new dimensions
+                    player->loadAnimations();
+                    for (Zombie* zombie : map->getZombies()) {
+                        zombie->loadAnimations();
+                    }
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
@@ -228,4 +239,8 @@ int* Window::getHeightPtr() { return &height; }
 
 Player* Window::getPlayerPtr() {
     return player;
+}
+
+Map* Window::getMapPtr() {
+    return map;
 }

@@ -5,17 +5,24 @@
 #include "Window.h"
 
 
-Map::Map(Window* window) : window(window), tileSize(16), mapWidth(100), mapHeight(100), loadedRange(1000) {
+Map::Map(Window* window) : window(window), tileSize(16), mapWidth(50), mapHeight(50), loadedRange(1000), zoomFactor(1.0f) {
 
     windowWidthPtr = window->getWidthPtr();
     windowHeightPtr = window->getHeightPtr();
     renderer = window->getRenderer();
     
     // Load texture once for the entire map
-    texture = loadTexture("assets/tileset.png", renderer);
+    texture = loadTexture("assets/tileset.png");
 
     // Precompute decorations for all tiles
-    createMap();
+    mapData.resize(mapHeight, std::vector<TileType>(mapWidth));
+    decorationData.resize(mapHeight, std::vector<std::string>(mapWidth, "none"));
+
+    generateTerrain();
+    // smoothTerrain(3);
+    // createBoundaries();
+    generateDecorations();
+    createTiles();
 }   
 
 Map::~Map() {
@@ -25,7 +32,121 @@ Map::~Map() {
     }
 }
 
+void Map::generateTerrain() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(0, 100);
 
+    for (int y = 0; y < mapHeight; ++y) {
+        for (int x = 0; x < mapWidth; ++x) {
+            int randomValue = distr(gen);
+            if (randomValue < 60) {
+                mapData[y][x] = TileType::Grass1;
+            } else if (randomValue < 80) {
+                mapData[y][x] = TileType::Grass2;
+            } else {
+                mapData[y][x] = TileType::Grass3;
+            }
+        }
+    }
+}
+
+// void Map::smoothTerrain(int smoothingPasses) {
+//     for (int pass = 0; pass < smoothingPasses; ++pass) {
+//         std::vector<std::vector<TileType>> newMapData = mapData;
+
+//         for (int y = 1; y < mapHeight - 1; ++y) {
+//             for (int x = 1; x < mapWidth - 1; ++x) {
+//                 int treeCount = 0;
+//                 int grass1Count = 0;
+//                 int grass2Count = 0;
+//                 int grass3Count = 0;
+//                 for (int dy = -1; dy <= 1; ++dy) {
+//                     for (int dx = -1; dx <= 1; ++dx) {
+//                         switch (mapData[y + dy][x + dx]) {
+//                             case TileType::Tree: treeCount++; break;
+//                             case TileType::Grass1: grass1Count++; break;
+//                             case TileType::Grass2: grass2Count++; break;
+//                             case TileType::Grass3: grass3Count++; break;
+//                         }
+//                     }
+//                 }
+
+//                 if (treeCount >= 5) {
+//                     newMapData[y][x] = TileType::Tree;
+//                 } else if (treeCount <= 3) {
+//                     // Choose the most common grass type
+//                     if (grass1Count <= grass2Count && grass1Count <= grass3Count) {
+//                         newMapData[y][x] = TileType::Grass1;
+//                     } else if (grass2Count <= grass1Count && grass2Count <= grass3Count) {
+//                         newMapData[y][x] = TileType::Grass2;
+//                     } else {
+//                         newMapData[y][x] = TileType::Grass3;
+//                     }
+//                 }
+//             }
+//         }
+
+//         mapData = newMapData;
+//     }
+// }
+
+// void Map::createBoundaries() {
+//     for (int y = 0; y < mapHeight; ++y) {
+//         mapData[y][0] = TileType::Tree;
+//         mapData[y][mapWidth - 1] = TileType::Tree;
+//     }
+//     for (int x = 0; x < mapWidth; ++x) {
+//         mapData[0][x] = TileType::Tree;
+//         mapData[mapHeight - 1][x] = TileType::Tree;
+//     }
+// }
+
+void Map::generateDecorations() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(0, 100);
+
+    for (int y = 1; y < mapHeight - 1; ++y) {
+        for (int x = 1; x < mapWidth - 1; ++x) {
+            int randomValue = distr(gen);
+            if (randomValue < 1) {
+                decorationData[y][x] = "bush";
+            } else if (randomValue < 10) {
+                decorationData[y][x] = "tree";
+            }
+        }
+    }
+}
+
+void Map::createTiles() {
+    tiles.resize(mapHeight, std::vector<Tile>(mapWidth));
+
+    for (int y = 0; y < mapHeight; ++y) {
+        for (int x = 0; x < mapWidth; ++x) {
+            std::string tileType;
+            bool isWalkable = true;
+
+            switch (mapData[y][x]) {
+                case TileType::Grass1:
+                    tileType = "grass1";
+                    break;
+                case TileType::Grass2:
+                    tileType = "grass2";
+                    break;
+                case TileType::Grass3:
+                    tileType = "grass3";
+                    break;
+            }
+
+            if (decorationData[y][x] == "tree" || decorationData[y][x] == "bush") {
+                isWalkable = false;
+            }
+            
+            tiles[y][x] = Tile(x, y, tileType, decorationData[y][x], texture, renderer, isWalkable, tileSize, windowWidthPtr, windowHeightPtr);
+        }
+    }
+}
 
 std::string Map::getDecoration() {
     static std::unordered_map<std::string, int> mapDecorationsChances = {
@@ -52,20 +173,20 @@ std::string Map::getDecoration() {
     return "none"; // Default if no decoration is selected
 }
 
-void Map::createMap() {
-    tiles.resize(mapHeight, std::vector<Tile>(mapWidth));
+// void Map::createMap() {
+//     tiles.resize(mapHeight, std::vector<Tile>(mapWidth));
 
-    // Generate and store tile decorations during map creation
-    for (int y = 0; y < mapHeight; ++y) {
-        for (int x = 0; x < mapWidth; ++x) {
-            //std::string decoration = getDecoration();
-            //bool isWalkable = (decoration == "none");
-            // tiles[y][x] = Tile(x, y, decoration, texture, renderer, isWalkable, tileSize, windowWidthPtr, windowHeightPtr);
-            tiles[y][x] = Tile(x, y, "", NULL, renderer, true, tileSize, windowWidthPtr, windowHeightPtr);
+//     // Generate and store tile decorations during map creation
+//     for (int y = 0; y < mapHeight; ++y) {
+//         for (int x = 0; x < mapWidth; ++x) {
+//             //std::string decoration = getDecoration();
+//             //bool isWalkable = (decoration == "none");
+//             // tiles[y][x] = Tile(x, y, decoration, texture, renderer, isWalkable, tileSize, windowWidthPtr, windowHeightPtr);
+//             tiles[y][x] = Tile(x, y, "", NULL, renderer, true, tileSize, windowWidthPtr, windowHeightPtr);
 
-        }
-    }
-}
+//         }
+//     }
+// }
 
 Tile* Map::getTilePtr(int x, int y) {
     if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight) {
@@ -81,18 +202,20 @@ Tile* Map::getTileAtPixelPtr(int pixelX, int pixelY) {
 }
 
 void Map::draw(int cameraX, int cameraY) {
-    int min_X = cameraX - *windowWidthPtr / 2;
-    int min_Y = cameraY - *windowHeightPtr / 2;
+    int zoomedTileSize = static_cast<int>(tileSize * zoomFactor);
+    int min_X = cameraX - (*windowWidthPtr / 2) / zoomFactor;
+    int min_Y = cameraY - (*windowHeightPtr / 2) / zoomFactor;
 
-    int nbTilesX = *windowWidthPtr / tileSize + 5;
-    int nbTilesY = *windowHeightPtr / tileSize + 5;
+    int nbTilesX = (*windowWidthPtr / zoomedTileSize) + 2;
+    int nbTilesY = (*windowHeightPtr / zoomedTileSize) + 2;
+
     for (int j = 0; j <= nbTilesY; j++) {
         for (int i = 0; i <= nbTilesX; i++) {
             int x = min_X + i * tileSize;
             int y = min_Y + j * tileSize;
             Tile* tilePtr = getTileAtPixelPtr(x, y);
             if (tilePtr) {
-                tilePtr->draw(cameraX, cameraY);
+                tilePtr->draw(cameraX, cameraY, zoomFactor);
             }
         }
     }
@@ -125,13 +248,14 @@ std::vector<Zombie*> Map::getZombies() {
     return zombies;
 }
 
-SDL_Texture* Map::loadTexture(const char* filePath, SDL_Renderer* renderer) {
-    SDL_Texture* texture = IMG_LoadTexture(renderer, filePath);
-    if (!texture) {
+SDL_Texture* Map::loadTexture(const char* filePath) {
+    SDL_Texture* text = IMG_LoadTexture(renderer, filePath);
+    if (!text) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load texture: %s", IMG_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL Error: %s", SDL_GetError());
         throw std::runtime_error("Failed to load texture");
     }
-    return texture;
+    return text;
 }
 
 void Map::updateZombies(float deltaTime) {
@@ -142,14 +266,22 @@ void Map::updateZombies(float deltaTime) {
     for (Zombie* zombie : zombies) {
         int zombieX, zombieY;
         std::tie(zombieX, zombieY) = zombie->getCoordinates();
-        int distance = std::sqrt(std::pow(playerX - zombieX, 2) + std::pow(playerY - zombieY, 2));
+        int dx = playerX - zombieX;
+        int dy = playerY - zombieY;
+        int distance = std::sqrt(dx * dx + dy * dy);
 
         if (distance < loadedRange) {
             zombie->update(deltaTime);
         }
     }
-
     removeDeadZombies();
+    spawnZombie();
+}
+
+void Map::spawnZombie(){
+    Player* playerPtr = window->getPlayerPtr();
+    int playerX, playerY;
+    std::tie(playerX, playerY) = playerPtr->getCoordinates();
 
     // Random spawn new zombies
     static std::random_device rd;
@@ -199,8 +331,7 @@ Player Map::spawnPlayer() {
     do {
         int x = distribX(gen);
         int y = distribY(gen);
-        std::cout << "x: " << x << " y: " << y << std::endl;
-    
+
         Tile* tilePtr = getTilePtr(x, y);
         if (tilePtr && tilePtr->getIsWalkable()) {
             Player player = Player(x * tileSize, y*tileSize, window, this);
@@ -208,4 +339,16 @@ Player Map::spawnPlayer() {
             return player;
         }
     } while (true);
+}
+
+void Map::setZoomFactor(float factor) {
+    zoomFactor = std::max(0.1f, std::min(factor, 5.0f)); // Limit zoom between 0.1x and 5x
+}
+
+float Map::getZoomFactor() const {
+    return zoomFactor;
+}
+
+float* Map::getZoomFactorPtr() {
+    return &zoomFactor;
 }

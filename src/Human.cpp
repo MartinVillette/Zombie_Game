@@ -19,9 +19,11 @@ Human::Human(float x, float y, Window* window, Map* map)
     speed = 100;
     currentFrame = 0;
     timeSinceLastFrame = 0.0f;
+
     numFrames = 7;
-    frameWidth = 48;
-    frameHeight = 30;
+    frameWidth = 32;
+    frameHeight = 32;
+
     frameTime = 0.1f;
     isWalking = false;
     walkingDirection = 0;
@@ -32,12 +34,16 @@ Human::Human(float x, float y, Window* window, Map* map)
 
     pathfinder = new Pathfinder(map);
 
-    texture = loadTexture("assets/Character-and-Zombie.png", renderer);
-    textureFlip = SDL_FLIP_NONE;
+    // humanTexture = loadTexture("assets/Characters/Human.png", renderer);
+    // zombieTexture = loadTexture("assets/Characters/Zombie.png", renderer);
+
+    // textureFlip = SDL_FLIP_NONE;
+    zoomFactorPtr = map->getZoomFactorPtr();
 }
 
 Human::~Human() {
-    SDL_DestroyTexture(texture);
+    // SDL_DestroyTexture(humanTexture);
+    // SDL_DestroyTexture(zombieTexture);
     delete pathfinder;
 }
 
@@ -54,8 +60,8 @@ void Human::move(float dx, float dy) {
     float oldX = x;
     float oldY = y;
 
-    x += dx;
-    y += dy;
+    x += dx / *zoomFactorPtr;
+    y += dy / *zoomFactorPtr;
 
     if (x < 0 || x > mapWidth * tileSize) {
         x = oldX;
@@ -80,42 +86,45 @@ std::pair<int, int> Human::getWindowSize() {
     return { *windowWidthPtr, *windowHeightPtr };
 }
 
-void Human::draw(int cameraX, int cameraY) {
-    int textureWidth;
-    SDL_QueryTexture(texture, NULL, NULL, &textureWidth, NULL);
 
-    int row;
+// void Human::draw(int cameraX, int cameraY) {
+//     int row;
 
-    if (isPlayer){
-        if (isWalking) {
-            row = 3;
-            numFrames = 7;
-        } else {
-            row = 1;
-            numFrames = 14;
-        }
-    } else {
-        row = 4;
-        numFrames = 7;
-    }
+//     if (isWalking) {
+//         row = 1;
+//         numFrames = 4;
+//     } else {
+//         if (!isPlayer) {
+//             row = 2;
+//             numFrames = 4;
+//         } else {
+//             row = 0;
+//             numFrames = 7;
+//         }
+//     }
 
-    if (walkingDirection == 4) {
-        textureFlip = SDL_FLIP_HORIZONTAL;
-    } else if (walkingDirection == 2) {
-        textureFlip = SDL_FLIP_NONE;
-    }
+//     if (walkingDirection == 4) {
+//         textureFlip = SDL_FLIP_HORIZONTAL;
+//     } else if (walkingDirection == 2) {
+//         textureFlip = SDL_FLIP_NONE;
+//     }
 
-    int drawX = (x - cameraX) + *windowWidthPtr / 2;
-    int drawY = (y - cameraY) + *windowHeightPtr / 2;
-    if (drawY > *windowHeightPtr) {
-        return;
-    } else {
-        SDL_Rect srcRect = { currentFrame * frameWidth, row * frameHeight, frameWidth, frameHeight };
-        SDL_Rect destRect = { static_cast<int>(drawX) - frameWidth / 2, static_cast<int>(drawY) - frameHeight / 2, frameWidth, frameHeight };
-        SDL_RenderCopyEx(renderer, texture, &srcRect, &destRect, 0, NULL, textureFlip);
-    }
+//     float zoomFactor = map->getZoomFactor();
+//     int drawX = static_cast<int>((x - cameraX) * zoomFactor + (*windowWidthPtr / 2));
+//     int drawY = static_cast<int>((y - cameraY) * zoomFactor + (*windowHeightPtr / 2));
+
+//     if (drawY > *windowHeightPtr) {
+//         return;
+//     } else {
+//         int zoomedFrameWidth = static_cast<int>(frameWidth * zoomFactor);
+//         int zoomedFrameHeight = static_cast<int>(frameHeight * zoomFactor);
+//         SDL_Rect srcRect = { currentFrame * frameWidth, row * frameHeight, frameWidth, frameHeight };
+//         SDL_Rect destRect = { drawX - zoomedFrameWidth/2, drawY-zoomedFrameHeight/2, zoomedFrameWidth, zoomedFrameHeight };
+//         SDL_Texture* texture = isPlayer ? humanTexture : zombieTexture;
+//         SDL_RenderCopyEx(renderer, texture, &srcRect, &destRect, 0, NULL, textureFlip);
+//     }
     
-}
+// }
 
 bool Human::getIsWalking() {
     return isWalking;
@@ -190,4 +199,20 @@ int Human::getHealth() {
 
 void Human::setHealth(int newHealth) {
     health = newHealth;
+}
+
+float Human::getZoomFactor() {
+    return *zoomFactorPtr;
+}
+
+SDL_Renderer* Human::getRenderer() {
+    return renderer;
+}
+
+std::pair<int, int> Human::getFrameSize() {
+    return { frameWidth, frameHeight };
+}
+
+void Human::setNumFrames(int numFrames) {
+    this->numFrames = numFrames;
 }

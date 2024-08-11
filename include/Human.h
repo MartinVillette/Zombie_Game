@@ -26,21 +26,23 @@ private:
     float speed;
     bool isWalking;
     int walkingDirection;
-    SDL_Texture* texture;
-    SDL_Texture* loadTexture(const char* filePath, SDL_Renderer* renderer);
-    SDL_RendererFlip textureFlip;
+    // SDL_Texture* zombieTexture;
+    // SDL_Texture* humanTexture;
+
+    // SDL_RendererFlip textureFlip;
     bool isPlayer;
     Pathfinder* pathfinder;
     int health;
     int* windowWidthPtr;
     int* windowHeightPtr;
+    float* zoomFactorPtr;
 
 public:
     Human(float x, float y, Window* window, Map* map);
     virtual ~Human();
     void move(float dx, float dy);
     float getSpeed() const;
-    void draw(int cameraX, int cameraY);
+    // void draw(int cameraX, int cameraY);
     bool getIsWalking();
     int getWalkingDirection();
     int getCurrentFrame();
@@ -60,6 +62,11 @@ public:
     int getHealth();
     void setHealth(int newHealth);
     std::pair<int, int> getWindowSize();
+    float getZoomFactor();
+    SDL_Texture* loadTexture(const char* filePath, SDL_Renderer* renderer);
+    SDL_Renderer* getRenderer();
+    std::pair<int, int> getFrameSize();
+    void setNumFrames(int numFrames);
 };
 
 #endif

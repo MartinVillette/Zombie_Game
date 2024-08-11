@@ -43,6 +43,7 @@ public:
     SDL_Texture* getLightMask();
     void addLight(Light* light);
     void removeLight(Light* light);
+    Map* getMapPtr();
 };
 
 #endif

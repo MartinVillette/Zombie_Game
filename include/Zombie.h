@@ -14,6 +14,13 @@ private:
     int damage;
     float timeSinceLastAttack;
     int viewRange;
+    SDL_RendererFlip textureFlip;
+
+    std::vector<SDL_Texture*>* currentTextures;
+    std::vector<SDL_Texture*> idleTextures;
+    std::vector<SDL_Texture*> walkTextures;
+    std::vector<SDL_Texture*> sleepTextures;
+    std::vector<SDL_Texture*> attackTextures;
 
 public:
     Zombie(float x, float y, Window* window, Map* map);
@@ -23,6 +30,9 @@ public:
     void clearPath();
     bool isPathEmpty();
     bool isDead();
+    void draw(int cameraX, int cameraY);
+    void loadAnimations();
+    void switchTexture();
 };
 
 #endif

@@ -1,11 +1,16 @@
 #include "Gun.h"
 #include <cmath>
 #include "Zombie.h"
+#include "Window.h"
+#include "Player.h"
 
 
-Gun::Gun(int damage, int range, float fireRate, int magazineCapacity)
-    : damage(damage), range(range), fireRate(fireRate), magazineCapacity(magazineCapacity),
-      bulletsInMagazine(magazineCapacity), timeSinceLastShot(0) {}
+Gun::Gun(Window* window, Player* playerPtr, int damage, int range, float fireRate, int magazineCapacity)
+    : window(window), playerPtr(playerPtr), damage(damage), range(range), fireRate(fireRate), magazineCapacity(magazineCapacity),
+      bulletsInMagazine(magazineCapacity) {
+        timeSinceLastShot = 0;
+        gunTexture = loadTexture("assets/Guns/Pistol.png", window->getRenderer());
+    }
 
 void Gun::shoot(int originX, int originY, float directionX, float directionY) {
     if (bulletsInMagazine > 0 && timeSinceLastShot >= 1.0f / fireRate) {
@@ -14,7 +19,7 @@ void Gun::shoot(int originX, int originY, float directionX, float directionY) {
         directionX /= length;
         directionY /= length;
 
-        bullets.push_back(new Bullet(originX, originY, directionX, directionY, bulletSpeed, damage, range));
+        bullets.push_back(new Bullet(window, originX, originY, directionX, directionY, bulletSpeed, damage, range));
         // bulletsInMagazine--;
         timeSinceLastShot = 0;
     }
@@ -34,8 +39,51 @@ void Gun::update(float deltaTime, std::vector<Zombie*> zombies) {
     }
 }
 
-void Gun::drawBullets(SDL_Renderer* renderer, int cameraX, int cameraY, int windowWidth, int windowHeight) {
+void Gun::drawBullets(int cameraX, int cameraY) {
     for (Bullet* bullet : bullets) {
-        bullet->draw(renderer, cameraX, cameraY, windowWidth, windowHeight);
+        bullet->draw(cameraX, cameraY);
     }
+}
+
+
+SDL_Texture* Gun::loadTexture(const char* filePath, SDL_Renderer* renderer) {
+    SDL_Texture* texture = IMG_LoadTexture(renderer, filePath);
+    if (!texture) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to load texture: %s", IMG_GetError());
+        throw std::runtime_error("Failed to load texture");
+    }
+    return texture;
+}
+
+
+void Gun::draw(int cameraX, int cameraY) {
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    
+    SDL_Rect src = {0, 0, 32, 32};
+
+    float x,y;
+    std::tie(x, y) = playerPtr->getCoordinates();
+    float zoomFactor = playerPtr->getZoomFactor();
+
+    int windowWidth, windowHeight;
+    windowWidth = *window->getWidthPtr();
+    windowHeight = *window->getHeightPtr();
+
+    int frameWidth = 12;
+    int frameHeight = 12;
+    int zoomedFrameWidth = static_cast<int>(frameWidth * zoomFactor);
+    int zoomedFrameHeight = static_cast<int>(frameHeight * zoomFactor);
+    
+    int drawX = static_cast<int>((x - cameraX - 7) * zoomFactor + (windowWidth / 2));
+    int drawY = static_cast<int>((y - cameraY - 4) * zoomFactor + (windowHeight / 2));
+
+    double angle = atan2(mouseY - drawX, mouseX - drawY) * 180 / M_PI + 10;
+
+    SDL_Point rotationPoint;
+    rotationPoint.x = 7 * zoomedFrameWidth / 32; // center horizontally
+    rotationPoint.y = 20 * zoomedFrameHeight / 32;
+
+    SDL_Rect dest = {drawX, drawY, zoomedFrameWidth, zoomedFrameHeight};
+    SDL_RenderCopyEx(window->getRenderer(), gunTexture, &src, &dest, angle, &rotationPoint, SDL_FLIP_NONE);
 }

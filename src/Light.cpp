@@ -11,6 +11,7 @@ void Light::render() {
     SDL_Renderer* renderer = window->getRenderer();
     int width = *window->getWidthPtr();
     int height = *window->getHeightPtr();
+    float zoomFactor = *window->getMapPtr()->getZoomFactorPtr();
 
     // Load the spot image texture (consider caching this texture)
     SDL_Surface* spotSurface = IMG_Load("assets/spot.png");
@@ -23,7 +24,7 @@ void Light::render() {
     // Calculate the position to center the spot on the light's position
     time += 0.05f;  // Increment time (controls speed of variation)
     float variationFactor = 1.0f + (std::sin(time) * variation / 100.0f);
-    int layerRange = (int) (range * variationFactor);
+    int layerRange = (int) (range * variationFactor * zoomFactor);
 
     SDL_Rect spotRect;
     spotRect.x = width/2 - layerRange;

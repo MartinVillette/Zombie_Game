@@ -17,6 +17,10 @@ private:
     Light* light;
     int score;
     std::chrono::steady_clock::time_point tpStart;
+    std::vector<SDL_Texture*>* currentTextures;
+    std::vector<SDL_Texture*> idleTextures;
+    std::vector<SDL_Texture*> walkTextures;
+    SDL_RendererFlip textureFlip;
     
 public:
     Player(float x, float y, Window* window, Map* map);
@@ -27,6 +31,10 @@ public:
     void mouseUpdate(int mouseX, int mouseY);
     Gun* getGun() { return gun; }
     void addScore(int score);
+    void loadAnimations();
+    void draw(int cameraX, int cameraY);
+    void switchTexture();
+    SDL_RendererFlip getTextureFlip();
 };
 
 #endif
