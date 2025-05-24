@@ -5,6 +5,8 @@ This is a 2D top-down zombie survival game created using C++ and SDL2. The playe
 through a procedurally generated map, fighting off zombies with a gun while trying to survive 
 as long as possible.
 
+![Screenshot](assets/screenshot.png)
+
 ## GAME FEATURES
 - Top-down 2D gameplay with sprite animations
 - Player movement using WASD keys
