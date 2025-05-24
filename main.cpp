@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
         Window window(WINDOW_WIDTH, WINDOW_HEIGHT, "RPG Game");
         Map map(&window);
 
-        Player player = map.spawnPlayer(); // Adjust radius for texture size
+        Player player = map.spawnPlayer();
 
         window.setPlayer(&player);
         window.setMap(&map);

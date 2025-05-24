@@ -20,7 +20,8 @@ void Gun::shoot(int originX, int originY, float directionX, float directionY) {
         directionY /= length;
 
         bullets.push_back(new Bullet(window, originX, originY, directionX, directionY, bulletSpeed, damage, range));
-        // bulletsInMagazine--;
+        // Uncomment this line if you want to decrease the magazine count on each shot
+        // bulletsInMagazine--; 
         timeSinceLastShot = 0;
     }
 }

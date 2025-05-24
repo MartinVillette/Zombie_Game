@@ -19,8 +19,6 @@ Map::Map(Window* window) : window(window), tileSize(16), mapWidth(50), mapHeight
     decorationData.resize(mapHeight, std::vector<std::string>(mapWidth, "none"));
 
     generateTerrain();
-    // smoothTerrain(3);
-    // createBoundaries();
     generateDecorations();
     createTiles();
 }   
@@ -46,74 +44,6 @@ void Map::generateTerrain() {
                 mapData[y][x] = TileType::Grass2;
             } else {
                 mapData[y][x] = TileType::Grass3;
-            }
-        }
-    }
-}
-
-// void Map::smoothTerrain(int smoothingPasses) {
-//     for (int pass = 0; pass < smoothingPasses; ++pass) {
-//         std::vector<std::vector<TileType>> newMapData = mapData;
-
-//         for (int y = 1; y < mapHeight - 1; ++y) {
-//             for (int x = 1; x < mapWidth - 1; ++x) {
-//                 int treeCount = 0;
-//                 int grass1Count = 0;
-//                 int grass2Count = 0;
-//                 int grass3Count = 0;
-//                 for (int dy = -1; dy <= 1; ++dy) {
-//                     for (int dx = -1; dx <= 1; ++dx) {
-//                         switch (mapData[y + dy][x + dx]) {
-//                             case TileType::Tree: treeCount++; break;
-//                             case TileType::Grass1: grass1Count++; break;
-//                             case TileType::Grass2: grass2Count++; break;
-//                             case TileType::Grass3: grass3Count++; break;
-//                         }
-//                     }
-//                 }
-
-//                 if (treeCount >= 5) {
-//                     newMapData[y][x] = TileType::Tree;
-//                 } else if (treeCount <= 3) {
-//                     // Choose the most common grass type
-//                     if (grass1Count <= grass2Count && grass1Count <= grass3Count) {
-//                         newMapData[y][x] = TileType::Grass1;
-//                     } else if (grass2Count <= grass1Count && grass2Count <= grass3Count) {
-//                         newMapData[y][x] = TileType::Grass2;
-//                     } else {
-//                         newMapData[y][x] = TileType::Grass3;
-//                     }
-//                 }
-//             }
-//         }
-
-//         mapData = newMapData;
-//     }
-// }
-
-// void Map::createBoundaries() {
-//     for (int y = 0; y < mapHeight; ++y) {
-//         mapData[y][0] = TileType::Tree;
-//         mapData[y][mapWidth - 1] = TileType::Tree;
-//     }
-//     for (int x = 0; x < mapWidth; ++x) {
-//         mapData[0][x] = TileType::Tree;
-//         mapData[mapHeight - 1][x] = TileType::Tree;
-//     }
-// }
-
-void Map::generateDecorations() {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distr(0, 100);
-
-    for (int y = 1; y < mapHeight - 1; ++y) {
-        for (int x = 1; x < mapWidth - 1; ++x) {
-            int randomValue = distr(gen);
-            if (randomValue < 1) {
-                decorationData[y][x] = "bush";
-            } else if (randomValue < 10) {
-                decorationData[y][x] = "tree";
             }
         }
     }
@@ -173,20 +103,6 @@ std::string Map::getDecoration() {
     return "none"; // Default if no decoration is selected
 }
 
-// void Map::createMap() {
-//     tiles.resize(mapHeight, std::vector<Tile>(mapWidth));
-
-//     // Generate and store tile decorations during map creation
-//     for (int y = 0; y < mapHeight; ++y) {
-//         for (int x = 0; x < mapWidth; ++x) {
-//             //std::string decoration = getDecoration();
-//             //bool isWalkable = (decoration == "none");
-//             // tiles[y][x] = Tile(x, y, decoration, texture, renderer, isWalkable, tileSize, windowWidthPtr, windowHeightPtr);
-//             tiles[y][x] = Tile(x, y, "", NULL, renderer, true, tileSize, windowWidthPtr, windowHeightPtr);
-
-//         }
-//     }
-// }
 
 Tile* Map::getTilePtr(int x, int y) {
     if (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight) {

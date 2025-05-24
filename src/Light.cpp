@@ -32,20 +32,6 @@ void Light::render() {
     spotRect.w = layerRange * 2;
     spotRect.h = layerRange * 2;
 
-    // Draw the spot texture with varying intensity
-    // for (int i = 0; i < 3; i++) {
-        
-    //     int size = range * 2 - i * 20;
-    //     spotRect.x = width/2 - size/2;
-    //     spotRect.y = height/2 - size/2;
-    //     spotRect.w = size;
-    //     spotRect.h = size;
-        
-    //     int layerIntensity = intensity - i * 30;
-    //     SDL_SetTextureColorMod(spotTexture, layerIntensity, layerIntensity, layerIntensity);
-    //     SDL_RenderCopy(renderer, spotTexture, NULL, &spotRect);
-    // }
-
     SDL_SetTextureColorMod(spotTexture, intensity, intensity, intensity);
 
     SDL_RenderCopy(renderer, spotTexture, NULL, &spotRect);
