@@ -12,16 +12,18 @@ Gun::Gun(Window* window, Player* playerPtr, int damage, int range, float fireRat
         gunTexture = loadTexture("assets/Guns/Pistol.png", window->getRenderer());
     }
 
-void Gun::shoot(int originX, int originY, float directionX, float directionY) {
+void Gun::shoot(float directionX, float directionY) {
     if (bulletsInMagazine > 0 && timeSinceLastShot >= 1.0f / fireRate) {
         // Normalize direction vector
         float length = std::sqrt(directionX * directionX + directionY * directionY);
         directionX /= length;
         directionY /= length;
 
-        bullets.push_back(new Bullet(window, originX, originY, directionX, directionY, bulletSpeed, damage, range));
-        // Uncomment this line if you want to decrease the magazine count on each shot
-        // bulletsInMagazine--; 
+        // Use player's world coordinates as origin (not screen coordinates)
+        float playerX, playerY;
+        std::tie(playerX, playerY) = playerPtr->getCoordinates();
+        
+        bullets.push_back(new Bullet(window, playerX, playerY, directionX, directionY, bulletSpeed, damage, range));
         timeSinceLastShot = 0;
     }
 }

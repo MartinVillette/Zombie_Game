@@ -38,7 +38,7 @@ void Player::mouseUpdate(int mouseX, int mouseY) {
     float directionX = worldMouseX - playerX;
     float directionY = worldMouseY - playerY;
 
-    gun->shoot(playerX, playerY, directionX, directionY);
+    gun->shoot(directionX, directionY);
 }
 
 void Player::update(float deltaTime) {

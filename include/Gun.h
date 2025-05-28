@@ -24,7 +24,7 @@ private:
 
 public:
     Gun(Window* window, Player* playerPtr, int damage, int range, float fireRate, int magazineCapacity);
-    void shoot(int originX, int originY, float directionX, float directionY);
+    void shoot(float directionX, float directionY);
     void update(float deltaTime, std::vector<Zombie*> zombies);
     void drawBullets(int cameraX, int cameraY);
     SDL_Texture* loadTexture(const char* filePath, SDL_Renderer* renderer);

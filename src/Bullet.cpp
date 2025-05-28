@@ -5,10 +5,10 @@
 #include <vector>
 #include "Window.h"
 
-Bullet::Bullet(Window* window, int originX, int originY, float directionX, float directionY, float speed, int damage, int range)
+Bullet::Bullet(Window* window, float originX, float originY, float directionX, float directionY, float speed, int damage, int range)
     : window(window), originX(originX), originY(originY), directionX(directionX), directionY(directionY), speed(speed), damage(damage), range(range) {
-    x = (float) originX;
-    y = (float) originY;
+    x = originX;
+    y = originY;
 
     windowWidthPtr = window->getWidthPtr();
     windowHeightPtr = window->getHeightPtr();
@@ -17,36 +17,49 @@ Bullet::Bullet(Window* window, int originX, int originY, float directionX, float
 }
 
 bool Bullet::update(float deltaTime, std::vector<Zombie*> zombies) {
-    float zoomFactor = *zoomFactorPtr;
-    x += directionX * speed * deltaTime * zoomFactor;
-    y += directionY * speed * deltaTime * zoomFactor;
+    // Move bullet in world coordinates
+    x += directionX * speed * deltaTime;
+    y += directionY * speed * deltaTime;
 
-    // if bullet touches a zombie, then the bullet is destroyed and zombie is damaged
+    // Check collision with zombies using sprite dimensions
     for (Zombie* zombie : zombies) {
-        float dx = x - *zombie->getX();
-        float dy = y - *zombie->getY();
-        float distance = std::sqrt(dx*dx + dy*dy);
-        if (distance < 10) {
+        auto [zombieX, zombieY] = zombie->getCoordinates();
+        auto [frameWidth, frameHeight] = zombie->getFrameSize();
+        
+        // Use half the sprite size for collision detection
+        float zombieHalfWidth = frameWidth / 2.0f;
+        float zombieHalfHeight = frameHeight / 2.0f;
+        
+        // Check if bullet is within zombie's bounding box
+        if (x >= zombieX - zombieHalfWidth && x <= zombieX + zombieHalfWidth &&
+            y >= zombieY - zombieHalfHeight && y <= zombieY + zombieHalfHeight) {
             zombie->takeDamage(damage);
             return true;
         }
     }
-    return false;
+    
+    // Check range in world coordinates
+    float travelDistance = sqrt(pow(x - originX, 2) + pow(y - originY, 2));
+    return travelDistance > range;
 }
 
 void Bullet::draw(int cameraX, int cameraY) {
-    // Adjust bullet position relative to the camera
     int windowWidth = *windowWidthPtr;
     int windowHeight = *windowHeightPtr;
     float zoomFactor = *zoomFactorPtr;
-    int bulletSize = 4 * zoomFactor;
-
-    int drawX = static_cast<int>(x - cameraX + windowWidth / 2.0f - bulletSize/2);
-    int drawY = static_cast<int>(y - cameraY + windowHeight / 2.0f - bulletSize/2);
     
-    // Draw bullet
-    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255); // Yellow color for bullets
-    SDL_Rect bulletRect = {drawX, drawY, bulletSize, bulletSize}; // Slight offset to center the bullet
+    // Convert world coordinates to screen coordinates with zoom
+    int drawX = static_cast<int>((x - cameraX) * zoomFactor + windowWidth / 2.0f);
+    int drawY = static_cast<int>((y - cameraY) * zoomFactor + windowHeight / 2.0f);
+    
+    int bulletSize = static_cast<int>(4 * zoomFactor);
+    
+    // Center the bullet
+    drawX -= bulletSize / 2;
+    drawY -= bulletSize / 2;
+    
+    SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+    SDL_Rect bulletRect = {drawX, drawY, bulletSize, bulletSize};
     SDL_RenderFillRect(renderer, &bulletRect);
 }
 
@@ -54,6 +67,6 @@ void Bullet::draw(int cameraX, int cameraY) {
 bool Bullet::isOutOfRange(float range) const {
     float dx = x - originX;
     float dy = y - originY;
-    float distance = std::sqrt(dx*dx + dy*dy) / *zoomFactorPtr;
-    return distance > range;
+    float travelDistance = sqrt(pow(dx, 2) + pow(dy, 2));
+    return travelDistance > range;
 }
