@@ -1,64 +1,143 @@
 # ZOMBIE SURVIVAL GAME
 
-## OVERVIEW
-This is a 2D top-down zombie survival game created using C++ and SDL2. The player navigates 
-through a procedurally generated map, fighting off zombies with a gun while trying to survive 
-as long as possible.
+A 2D top-down zombie survival game built with C++ and SDL2, featuring AI-powered zombies, dynamic lighting, and procedural terrain generation.
 
-![Screenshot](assets/screenshot.png)
+![Game Preview](zombie-game-preview.mp4)
 
-## GAME FEATURES
-- Top-down 2D gameplay with sprite animations
-- Player movement using WASD keys
-- Shooting mechanics with mouse control
-- Dynamic lighting system
-- Pathfinding AI for zombies that hunt the player
-- Procedurally generated terrain
-- Score tracking based on zombies killed
-- Survival timer
-- Zoom functionality (P to zoom in, M to zoom out)
+*Navigate through a dangerous world, fight off intelligent zombies, and survive as long as possible!*
 
-## TECHNICAL IMPLEMENTATION
-- Built with C++ and SDL2/SDL2_image libraries
-- Object-oriented design with class inheritance (Human base class for Player and Zombie)
-- Pointer management for game entities
-- A* pathfinding algorithm for zombie movement
-- Collision detection system
-- Texture rendering with sprite animation
-- Dynamic lighting effects
+## 🎮 GAME OVERVIEW
 
-## CONTROLS
-- W: Move up
-- A: Move left
-- S: Move down
-- D: Move right
-- Left mouse button: Shoot
-- P: Zoom in
-- M: Zoom out
+This zombie survival game demonstrates advanced C++ programming concepts including object-oriented design, pointer management, and real-time game systems. Players must navigate through a procedurally generated world while fighting off zombies that use A* pathfinding to hunt them down.
 
-## GAME MECHANICS
-- Zombies will chase the player when within their view range
-- Each zombie deals damage when they get close enough to the player
-- Player must shoot zombies to survive
-- Game ends when player health reaches zero
-- Score increases with each zombie killed
+**Key Highlights:**
+- Real-time zombie AI with pathfinding algorithms
+- Dynamic lighting and visual effects
+- Procedural world generation
+- Sprite-based animation system
+- Collision detection and physics
 
-## SYSTEM REQUIREMENTS
-- Windows operating system with SDL2 and SDL2_image libraries
-- The game requires the following DLL files (included in the distribution):
-  - SDL2.dll
-  - SDL2_image.dll
+## ✨ FEATURES
 
-## BUILDING THE PROJECT
-The project can be built using the included Makefile. Simply run:
-  main.exe
+### Gameplay
+- **Top-down 2D perspective** with smooth character movement
+- **Intelligent zombie AI** using A* pathfinding for realistic hunting behavior
+- **Dynamic shooting mechanics** with mouse-controlled aiming
+- **Progressive difficulty** as more zombies spawn over time
+- **Score system** tracking zombie eliminations and survival time
+- **Zoom functionality** for tactical overview or detailed view
 
-## PROJECT STRUCTURE
-- src/: Source code files
-- include/: Header files
-- assets/: Game sprites and textures
-- lib/: SDL2 libraries
+### Technical Features
+- **Object-oriented architecture** with inheritance (Human → Player/Zombie)
+- **Memory management** with proper pointer handling
+- **Real-time collision detection** between bullets, players, and zombies
+- **Sprite animation system** with multiple animation states
+- **Dynamic lighting effects** for atmospheric gameplay
+- **Procedural terrain generation** for varied gameplay experiences
 
-## CREDITS
-Created as a learning project to explore C++ programming, pointers, and game development 
-basics with SDL2.
+## 🎯 CONTROLS
+
+| Key | Action |
+|-----|--------|
+| `W` | Move up |
+| `A` | Move left |
+| `S` | Move down |
+| `D` | Move right |
+| `Left Mouse` | Shoot |
+| `P` | Zoom in |
+| `M` | Zoom out |
+
+## 🧠 GAME MECHANICS
+
+- **Zombie Behavior**: Zombies patrol the area and chase the player when within their view range (200 units)
+- **Combat System**: Each zombie deals 10 damage when close enough to attack
+- **Health System**: Game ends when player health reaches zero
+- **Scoring**: Points awarded for each zombie eliminated
+- **Survival Challenge**: Increasing difficulty over time
+
+## 🛠️ TECHNICAL IMPLEMENTATION
+
+### Architecture
+```
+Human (Base Class)
+├── Player (Inherits from Human)
+└── Zombie (Inherits from Human)
+```
+
+### Key Systems
+- **Pathfinding**: A* algorithm implementation for zombie movement
+- **Animation**: Frame-based sprite animation with multiple states (idle, walking, attacking)
+- **Collision Detection**: Bounding box collision for bullets and entities
+- **Memory Management**: Safe pointer usage and resource cleanup
+- **Rendering**: SDL2-based texture rendering with zoom support
+
+### File Structure
+```
+├── src/           # Source code implementation
+├── include/       # Header files and class declarations
+├── assets/        # Game sprites, textures, and media
+├── lib/           # SDL2 libraries and dependencies
+└── main.cpp       # Application entry point
+```
+
+## 🚀 GETTING STARTED
+
+### Prerequisites
+- Windows operating system
+- C++ compiler (MinGW recommended)
+- SDL2 and SDL2_image libraries (included)
+
+### Installation
+1. Clone the repository
+2. Ensure SDL2 DLL files are in the project directory:
+   - `SDL2.dll`
+   - `SDL2_image.dll`
+3. Compile using the included Makefile:
+   ```bash
+   make
+   ```
+4. Run the game:
+   ```bash
+   ./main.exe
+   ```
+
+## 🎨 ASSETS
+
+The game uses custom sprite sheets located in the assets directory:
+- **Characters**: Player and zombie sprite animations
+- **Environment**: Procedural tileset for terrain generation
+- **UI Elements**: Score display and game interface components
+
+## 🔮 FUTURE ENHANCEMENTS
+
+This project serves as a foundation for a larger RPG village system with AI agents. Planned improvements include:
+
+- **Village Simulation**: NPC villagers with daily routines and interactions
+- **Quest System**: Dynamic mission generation and completion
+- **Advanced AI**: More sophisticated NPC behavior patterns
+- **Multiplayer Support**: Network-based cooperative gameplay
+- **Expanded World**: Larger maps with multiple biomes and locations
+
+## 🎓 LEARNING OBJECTIVES
+
+This project was created to explore and demonstrate:
+- **C++ Programming**: Advanced language features and best practices
+- **Game Development**: Real-time systems and game loop implementation
+- **AI Algorithms**: Pathfinding and decision-making systems
+- **Memory Management**: Proper pointer usage and resource handling
+- **Software Architecture**: Object-oriented design patterns
+
+## 📄 LICENSE
+
+This project is created for educational purposes and personal learning.
+
+## 🙏 ACKNOWLEDGMENTS
+
+- Built with [SDL2](https://www.libsdl.org/) graphics library
+- Pathfinding algorithms inspired by classic AI techniques
+- Created as a stepping stone toward more complex game development projects
+
+---
+
+*This zombie survival game represents the first step in a journey toward creating complex AI-driven game worlds. Each zombie eliminated brings us closer to understanding the intricate dance between player agency and artificial intelligence.*
+```
