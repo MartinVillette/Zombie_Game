@@ -108,7 +108,8 @@ The game uses custom sprite sheets located in the assets directory:
 - **Environment**: Procedural tileset for terrain generation
 - **UI Elements**: Score display and game interface components
 
-![Human and Zombie Sprites](assets/Character-and-Zombie.png)
+![Human Sprite](assets/Characters/Human.png)
+![Zombie Sprite](assets/Characters/Zombie.png)
 
 ## 🔮 FUTURE ENHANCEMENTS
 
