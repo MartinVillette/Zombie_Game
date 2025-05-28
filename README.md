@@ -2,7 +2,7 @@
 
 A 2D top-down zombie survival game built with C++ and SDL2, featuring AI-powered zombies, dynamic lighting, and procedural terrain generation.
 
-![Game Preview](zombie-game-preview.png)
+![Game Preview](assets/screenshot.png)
 
 *Navigate through a dangerous world, fight off intelligent zombies, and survive as long as possible!*
 
@@ -107,6 +107,8 @@ The game uses custom sprite sheets located in the assets directory:
 - **Characters**: Player and zombie sprite animations
 - **Environment**: Procedural tileset for terrain generation
 - **UI Elements**: Score display and game interface components
+
+![Human and Zombie Sprites](assets/Character-and-Zombie.png)
 
 ## 🔮 FUTURE ENHANCEMENTS
 
